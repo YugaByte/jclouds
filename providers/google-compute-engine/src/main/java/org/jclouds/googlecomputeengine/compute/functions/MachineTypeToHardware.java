@@ -51,9 +51,17 @@ public final class MachineTypeToHardware implements Function<MachineType, Hardwa
 
       Location zone = locationsByUri.get().get(zoneLink);
       if (zone == null) {
+         // YugaByte hack to avoid this:
+         // https://gist.githubusercontent.com/mbautin/41266adf5beff54a2b803aeea979fb07/raw
+         // Pretend this is asia-east1 instead.
+         zoneLink = URI.create(zoneLink.toString().replace("/asia-east2-", "/asia-east1-"));
+         zone = locationsByUri.get().get(zoneLink);
+      }
+      if (zone == null) {
          throw new IllegalStateException(
                String.format("zone %s not present in %s", zoneLink, locationsByUri.get().keySet()));
       }
+
       return new HardwareBuilder()
               .id(input.selfLink().toString())
               .providerId(input.id())
